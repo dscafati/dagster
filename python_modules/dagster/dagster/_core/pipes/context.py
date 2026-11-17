@@ -524,7 +524,10 @@ def build_external_execution_context_data(
         partition_time_window=(
             _convert_time_window(partition_time_window) if partition_time_window else None
         ),
-        run_id=context.run_id,
+        # `context.run` raises for directly-invoked assets/ops, whose run_id is "EPHEMERAL".
+        run_id=(
+            context.run_id if isinstance(context, BaseDirectExecutionContext) else context.run.run_id
+        ),
         job_name=None if isinstance(context, BaseDirectExecutionContext) else context.job_name,
         retry_number=0 if isinstance(context, BaseDirectExecutionContext) else context.retry_number,
         extras=extras or {},
